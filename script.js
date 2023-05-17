@@ -144,7 +144,7 @@ btnLogin.addEventListener("click", function (e) {
     }`;
     containerApp.style.opacity = 100;
     inputLoginPin.blur();
-    updateUi(currentAccount)
+    updateUi(currentAccount);
     inputLoginUsername.value = "";
     inputLoginPin.value = "";
   }
@@ -156,8 +156,8 @@ btnTransfer.addEventListener("click", function (e) {
   const receiverAccount = accounts.find(
     (user) => user.username === inputTransferTo.value
   );
-  inputTransferAmount.value = ''
-  inputTransferTo.value = ''
+  inputTransferAmount.value = "";
+  inputTransferTo.value = "";
   if (
     transferAmount > 0 &&
     receiverAccount &&
@@ -166,11 +166,37 @@ btnTransfer.addEventListener("click", function (e) {
   ) {
     currentAccount.movements.push(-transferAmount);
     receiverAccount.movements.push(transferAmount);
-    updateUi(currentAccount)
-   
-    console.log(currentAccount.movements)
+    updateUi(currentAccount);
   }
 });
+
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault()
+  const loanAmount = Number(inputLoanAmount.value)
+  if ( loanAmount > 0 && currentAccount.movements.some(mov => mov >= loanAmount * 0.1)){
+    currentAccount.movements.push(loanAmount)
+    updateUi(currentAccount)
+  }
+  inputLoanAmount.value = ''
+})
+
+
+btnClose.addEventListener("click", function (e) {
+  e.preventDefault();
+  if (
+    inputCloseUsername.value === currentAccount.username &&
+    Number(inputClosePin.value) === currentAccount.pin
+    ) {
+      const index = accounts.findIndex(
+        (acc) => acc.username === currentAccount.username
+        );
+        console.log(index);
+        accounts.splice(index, 1);
+      }
+      containerApp.style.opacity = 0;
+      labelWelcome.textContent = 'Log in to get started'
+    });
+    inputCloseUsername.value = inputClosePin.value = "";
 
 // const currencies = new Map([
 //   ["USD", "United States dollar"],
