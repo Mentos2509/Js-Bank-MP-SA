@@ -83,9 +83,9 @@ const withdrawal = (movements) => {
   return movements.filter((mov) => mov < 0);
 };
 
-const calcDisplayBalance = (movements) => {
-  const balance = movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `${balance} EUR`;
+const calcDisplayBalance = (acc) => {
+  acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `${acc.balance} EUR`;
 };
 
 const calcDisplaySummary = (acc) => {
@@ -124,6 +124,12 @@ const crateUsernames = (accounts) => {
 };
 crateUsernames(accounts);
 
+const updateUi = (acc) => {
+  displayMovements(acc.movements);
+  calcDisplayBalance(acc);
+  calcDisplaySummary(acc);
+};
+
 let currentAccount;
 
 btnLogin.addEventListener("click", function (e) {
@@ -136,14 +142,34 @@ btnLogin.addEventListener("click", function (e) {
     labelWelcome.textContent = `Welcome back , ${
       currentAccount.owner.split(" ")[0]
     }`;
+    containerApp.style.opacity = 100;
+    inputLoginPin.blur();
+    updateUi(currentAccount)
+    inputLoginUsername.value = "";
+    inputLoginPin.value = "";
   }
-  containerApp.style.opacity = 100;
-  displayMovements(currentAccount.movements);
-  calcDisplayBalance(currentAccount.movements);
-  calcDisplaySummary(currentAccount);
-  inputLoginUsername.value = "";
-  inputLoginPin.value = "";
-  inputLoginPin.blur();
+});
+
+btnTransfer.addEventListener("click", function (e) {
+  e.preventDefault();
+  const transferAmount = Number(inputTransferAmount.value);
+  const receiverAccount = accounts.find(
+    (user) => user.username === inputTransferTo.value
+  );
+  inputTransferAmount.value = ''
+  inputTransferTo.value = ''
+  if (
+    transferAmount > 0 &&
+    receiverAccount &&
+    currentAccount.balance >= transferAmount &&
+    receiverAccount?.username !== currentAccount.username
+  ) {
+    currentAccount.movements.push(-transferAmount);
+    receiverAccount.movements.push(transferAmount);
+    updateUi(currentAccount)
+   
+    console.log(currentAccount.movements)
+  }
 });
 
 // const currencies = new Map([
