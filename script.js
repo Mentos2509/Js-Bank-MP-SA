@@ -57,9 +57,11 @@ const inputLoanAmount = document.querySelector(".form__input--loan-amount");
 const inputCloseUsername = document.querySelector(".form__input--user");
 const inputClosePin = document.querySelector(".form__input--pin");
 
-const displayMovements = (movements) => {
+const displayMovements = (movements, sort = false) => {
   containerMovements.innerHTML = "";
-  movements.forEach((mov, i) => {
+const movs = sort ? movements.slice().sort((a,b)=> a - b) : movements;
+
+  movs.forEach((mov, i) => {
     const type = mov > 0 ? "deposit" : "withdrawal";
     const singleMovement = ` 
         <div class="movements__row">
@@ -73,7 +75,6 @@ const displayMovements = (movements) => {
   });
 };
 
-// const movements = [100, 200, 20, -30, -15];
 
 const deposit = (movements) => {
   return movements.filter((mov) => mov > 0);
@@ -170,33 +171,42 @@ btnTransfer.addEventListener("click", function (e) {
   }
 });
 
-btnLoan.addEventListener('click', function (e) {
-  e.preventDefault()
-  const loanAmount = Number(inputLoanAmount.value)
-  if ( loanAmount > 0 && currentAccount.movements.some(mov => mov >= loanAmount * 0.1)){
-    currentAccount.movements.push(loanAmount)
-    updateUi(currentAccount)
+btnLoan.addEventListener("click", function (e) {
+  e.preventDefault();
+  const loanAmount = Number(inputLoanAmount.value);
+  if (
+    loanAmount > 0 &&
+    currentAccount.movements.some((mov) => mov >= loanAmount * 0.1)
+  ) {
+    currentAccount.movements.push(loanAmount);
+    updateUi(currentAccount);
   }
-  inputLoanAmount.value = ''
-})
-
+  inputLoanAmount.value = "";
+});
 
 btnClose.addEventListener("click", function (e) {
   e.preventDefault();
   if (
     inputCloseUsername.value === currentAccount.username &&
     Number(inputClosePin.value) === currentAccount.pin
-    ) {
-      const index = accounts.findIndex(
-        (acc) => acc.username === currentAccount.username
-        );
-        console.log(index);
-        accounts.splice(index, 1);
-      }
-      containerApp.style.opacity = 0;
-      labelWelcome.textContent = 'Log in to get started'
-    });
-    inputCloseUsername.value = inputClosePin.value = "";
+  ) {
+    const index = accounts.findIndex(
+      (acc) => acc.username === currentAccount.username
+    );
+    console.log(index);
+    accounts.splice(index, 1);
+  }
+  containerApp.style.opacity = 0;
+  labelWelcome.textContent = "Log in to get started";
+});
+inputCloseUsername.value = inputClosePin.value = "";
+
+let sorted = false 
+btnSort.addEventListener('click', function (e){
+  e.preventDefault()
+  displayMovements(currentAccount.movements, !sorted)
+  sorted = !sorted
+})
 
 // const currencies = new Map([
 //   ["USD", "United States dollar"],
