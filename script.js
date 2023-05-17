@@ -67,13 +67,51 @@ const displayMovements = (movements) => {
       i + 1
     } ${type}</div>
         <div class="movements__date">3 days ago</div>
-        <div class="movements__value">${mov}</div>
+        <div class="movements__value">${mov}€</div>
         </div>`;
     containerMovements.insertAdjacentHTML("afterbegin", singleMovement);
   });
 };
 
-displayMovements(account1.movements);
+// const movements = [100, 200, 20, -30, -15];
+
+const deposit = (movements) => {
+  return movements.filter((mov) => mov > 0);
+};
+
+const withdrawal = (movements) => {
+  return movements.filter((mov) => mov < 0);
+};
+
+const calcDisplayBalance = (movements) => {
+  const balance = movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `${balance} EUR`;
+};
+
+const calcDisplaySummary = (acc) => {
+  const incomes = acc.movements
+    .filter((mov) => mov > 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumIn.textContent = `${incomes}€`;
+  const outcome = acc.movements
+    .filter((mov) => mov < 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumOut.textContent = `${outcome}€`;
+  const interest = acc.movements
+    .filter((mov) => mov > 0)
+    .map((deposit) => (deposit * acc.interestRate) / 100)
+    .filter((int, i, arr) => int >= 1)
+    .reduce((acc, int) => acc + int, 0);
+  labelSumInterest.textContent = `${interest}€`;
+};
+
+const eurToUsd = 1.1;
+const totalDepositUSD = (movement) => {
+  movement
+    .filter((mov) => mov > 0)
+    .map((mov) => mov * eurToUsd)
+    .reduce((acc, mov) => acc + mov, 0);
+};
 
 const crateUsernames = (accounts) => {
   accounts.forEach((acc) => {
@@ -84,25 +122,30 @@ const crateUsernames = (accounts) => {
       .join("");
   });
 };
-
 crateUsernames(accounts);
 
-const movements = [100,200,20,-30,-15];
+let currentAccount;
 
-const deposit = (movements) => {
-  return movements.filter((mov)=> mov > 0)
-}
+btnLogin.addEventListener("click", function (e) {
+  e.preventDefault();
+  currentAccount = accounts.find(
+    (acc) => acc.username === inputLoginUsername.value
+  );
 
-const withdrawal = (movements) => {
-  return movements.filter((mov) => mov < 0)
-}
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    labelWelcome.textContent = `Welcome back , ${
+      currentAccount.owner.split(" ")[0]
+    }`;
+  }
+  containerApp.style.opacity = 100;
+  displayMovements(currentAccount.movements);
+  calcDisplayBalance(currentAccount.movements);
+  calcDisplaySummary(currentAccount);
+  inputLoginUsername.value = "";
+  inputLoginPin.value = "";
+  inputLoginPin.blur();
+});
 
-const calcDisplayBalance = (movements) => {
-  const balance = movements.reduce((acc, mov)=> acc + mov , 0)
-  labelBalance.textContent = `${balance} EUR`
-}
-
-calcDisplayBalance(account1.movements)
 // const currencies = new Map([
 //   ["USD", "United States dollar"],
 //   ["EUR", "Euro"],
